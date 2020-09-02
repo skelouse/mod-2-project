@@ -9,7 +9,7 @@ import copy
 import inspect
 import pandas as pd
 import numpy as np
-from functools import wraps
+from functools import wraps, partial
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 import scipy.stats as stats
@@ -299,16 +299,29 @@ class MLFrame(pd.DataFrame):
     @wrapper
     def copy(self, *args, **kwargs):
         return super(MLFrame, self).copy(*args, **kwargs)
+    
+    @wrapper
+    def wrap__getitem__(self, df):
+        return df
+
+    def __getitem__(self, key):
+        """Wrapper for get item [] so that it returns an
+        MLFrame rather then a pd.DataFrame"""
+        call = super().__getitem__(key)
+        if isinstance(call, pd.DataFrame):
+            return self.wrap__getitem__(call)
+        else:
+            return call
 
     def info(self, *args, **kwargs):
         print("Model is %s\n" % self.model)
         return super(MLFrame, self).info(*args, **kwargs)
 
     def one_hot_encode(self,
-                       columns=[],
-                       drop_first=True,
-                       verbose=True,
-                       **kwargs):
+                        columns=[],
+                        drop_first=True,
+                        verbose=True,
+                        **kwargs):
         """Makes a one hot encoded dataframe
 
         Parameters
@@ -358,16 +371,18 @@ class MLFrame(pd.DataFrame):
             for col, num in sorted(count_dict.items(), 
                     key=lambda x: x[1]):
                 print(num, '->', col)
-                               
+                                
         return df
 
-    def find_outliers_IQR(self, col):
+    def find_outliers_IQR(self, col, verbose=True):
         """Finds outliers using the IQR method
 
         Parameters
         ----------------------------------------
         col[str]::
             Name of the column to search for outliers in
+        verbose[bool]::
+            Whether to print out the series or not
 
         Returns
         ----------------------------------------
@@ -375,6 +390,9 @@ class MLFrame(pd.DataFrame):
 
         Example Usage
         ----------------------------------------
+        df = MLFrame(pd.read_csv('mltools/tests/auto-mpg.csv'))
+        idx_outliers = df.find_outliers_IQR('horsepower', verbose=True)
+        df = MLFrame(df[~idx_outliers])
         """
         data = self[col]
         res = data.describe()
@@ -382,13 +400,20 @@ class MLFrame(pd.DataFrame):
         thresh = 1.5* IQR
         idx_outliers = ((data<res['25%']-thresh)
                          | (data > res['75%']+thresh))
+        if verbose:
+            total = idx_outliers.sum()
+            total_perc = round((total/len(self))*100, 2)
+            print("Found {} outliers using IQR in {} or ~ {}%"
+                  .format(total, col, total_perc))
         return idx_outliers
 
-    def find_outliers_Z(self, col):
+    def find_outliers_Z(self, col, verbose=True):
         """Finds outliers using the z_score method
         ----------------------------------------
         col[str]::
             Name of the column to search for outliers in
+        verbose[bool]::
+            Whether to print out the series or not
 
         Returns
         ----------------------------------------
@@ -396,27 +421,41 @@ class MLFrame(pd.DataFrame):
 
         Example Usage
         ----------------------------------------
+        df = MLFrame(pd.read_csv('mltools/tests/auto-mpg.csv'))
+        idx_outliers = df.find_outliers_Z('horsepower', verbose=True)
+        df = MLFrame(df[~idx_outliers])
         """
         data = self[col]
         z_scores = np.abs(stats.zscore(data))
         z_scores = pd.Series(z_scores, index=data.index)
         idx_outliers =z_scores > 3
+        if verbose:
+            total = idx_outliers.sum()
+            total_perc = round((total/len(self))*100, 2)
+            print("Found {} outliers using IQR in {} or ~ {}%"
+                  .format(total, col, total_perc))
         return idx_outliers    
 
-    @wrapper  # add verbose, print how many got removed
-    def outlier_removal(self, columns=[], IQR=False, z_score=False):
+    def outlier_removal(self,
+                        columns=[],
+                        IQR=False,
+                        z_score=False,
+                        verbose=True):
         """Removes outliers based on IQR or z_score
 
         Parameters
         ----------------------------------------
-        column[list]::
+        column[list, str]::
             The columns of which to remove outliers
+            if blank, removes from all columns
         IQR[bool]::
             Whether or not to remove outliers
             using IQR method
         z_score[bool]::
             Whether or not to remove outliers
             using z_score method
+        verbose[bool]::
+            Whether to print out the series or not        
 
         Returns
         ----------------------------------------
@@ -424,27 +463,66 @@ class MLFrame(pd.DataFrame):
 
         Example Usage
         ----------------------------------------
+        df = MLFrame(pd.read_csv('mltools/tests/auto-mpg.csv'))
+        df = df.outlier_removal('horsepower',
+                                 IQR=True)
+        # OR
+        df = df.outlier_removal(['horsepower', 'mpg'], 
+                                 z_score=True,
+                                 verbose=False)
         """
         if IQR:
-            func = self.find_outliers_IQR
+            func = partial(self.find_outliers_IQR,
+                           verbose=verbose)
         elif z_score:
-            func = self.find_outliers_Z
+            func = partial(self.find_outliers_Z,
+                           verbose=verbose)
+
         df = self.copy()
-        for col in columns:
-            outliers = func(col)
+        if isinstance(columns, list):
+            if not columns:
+                columns = self.columns
+            for col in columns:
+                outliers = func(col)
+                df = df[~outliers]
+        else:
+            outliers = func(columns)
             df = df[~outliers]
+
         return df
 
-    def get_nulls(self):
+    def get_nulls(self, verbose=True):
         """Returns sum of all nulls in the dataframe
+
+        Parameters
+        ----------------------------------------
+        verbose[bool]::
+            Whether to print out the null count of
+            each row or not
 
         Example Usage
         ----------------------------------------
+        >>> df = MLFrame(pd.DataFrame(np.arange(12).reshape(3, 4),
+        ...                   columns=['A', 'B', 'C', 'D']))
+        >>> df['A'].loc[1:3] = np.nan
+        >>> df['B'].loc[0] = np.nan
+        >>> df
+            A    B   C   D
+        0  0.0  NaN   2   3
+        1  NaN  5.0   6   7
+        2  NaN  9.0  10  11
+        >>> df.get_nulls(verbose=False)
+        3
         """
         nulls = self.isna().sum()
-        return nulls[nulls>0]/len(self)
+        if verbose:
+            print(nulls)
+        nulls = nulls.sum()
+        return nulls
 
-    def drop_nulls_perc(self, perc, inplace=False):
+    def drop_nulls_perc(self, perc,
+                        inplace=False,
+                        verbose=True):
         """Drops a column if the null value is over a
         certain percentage (0-1)
 
@@ -456,6 +534,8 @@ class MLFrame(pd.DataFrame):
         inplace[bool]::
             Defines whether to return a new dataframe or
             mutate the dataframe
+        verbose[bool]::
+            Whether to print out the series or not
 
         Returns
         ----------------------------------------
@@ -464,19 +544,46 @@ class MLFrame(pd.DataFrame):
 
         Example Usage
         ----------------------------------------
+        >>> df = MLFrame(pd.DataFrame(np.arange(12).reshape(3, 4),
+        ...                   columns=['A', 'B', 'C', 'D']))
+        >>> df['A'].loc[1:3] = np.nan
+        >>> df['B'].loc[0] = np.nan
+        >>> df
+            A    B   C   D
+        0  0.0  NaN   2   3
+        1  NaN  5.0   6   7
+        2  NaN  9.0  10  11
+        >>> df.drop_nulls_perc(.4)
+            B   C   D
+        0  NaN   2   3
+        1  5.0   6   7
+        2  9.0  10  11
         """
-        nulls = self.get_nulls()
-        drop_cols = nulls[nulls > perc].index
+        nulls = self.isna().sum()
+        drop_cols = nulls[nulls/len(self) > perc].index
+        if verbose:
+            print('Dropping: ')
+            for col in drop_cols:
+                print('    --> ', col)
         return self.drop(columns=drop_cols, inplace=inplace)
 
-    def ms(self):
+    def ms_matrix(self, **kwargs):
         """Plots a missingno matrix
+
+        Parameters
+        ----------------------------------------
+        kwargs{dict}::
+            Arguments to send to ms.matrix
         
         Example Usage
-        ----------------------------------------"""
-        return ms.matrix(self)
+        ----------------------------------------
+        >>> df = MLFrame(pd.read_csv('mltools/tests/auto-mpg.csv'))
+        >>> df.ms_matrix()
 
-    def fill_na_mode(self, inplace=False):
+        """
+        return ms.matrix(self, **kwargs)
+
+    def fill_na_mode(self, inplace=False, verbose=True):
         """Fills na cells with the mode of it's
         respective column
 
@@ -484,7 +591,124 @@ class MLFrame(pd.DataFrame):
         ----------------------------------------
         inplace[bool]::
             Defines whether to return a new dataframe or
+            mutate the dataframe.
+        verbose[bool]::
+            Whether to print out the filling information
+            or not.
+
+        Returns
+        ----------------------------------------
+        None if inplace, otherwise returns copy of dataframe
+        with nulls filled with mode
+
+        Example Usage
+        ----------------------------------------
+        >>> df = MLFrame(pd.DataFrame(np.arange(12).reshape(3, 4),
+        ...                   columns=['A', 'B', 'C', 'D']))
+        >>> df['A'].loc[1:3] = np.nan
+        >>> df['B'].loc[0] = np.nan
+        >>> df
+            A    B   C   D
+        0  0.0  NaN   2   3
+        1  NaN  5.0   6   7
+        2  NaN  9.0  10  11
+        >>> df.fill_na_mode()
+        Filling 66.67% of A with nan
+        Filling 33.33% of B with 9.0
+            A    B    C   D
+        0  0.0  5.0   2   3
+        1  0.0  5.0   6   7
+        2  0.0  9.0  10  11
+
+        """
+        nulls = self.isna().sum()
+        null_perc = nulls[nulls>0]/len(self)
+        null_cols = list(null_perc.index)
+        null_modes = dict(self[null_cols].mode())
+        if verbose:
+            for col, perc in null_perc.items():
+                print("Filling %s" % (round(perc*100, 2)),
+                      "\b%", "of %s with %s"
+                    % (col, null_modes[col][1]))
+        if inplace:
+            for col, mode in null_modes.items():
+                self[col] = self[col].fillna(mode[0])
+        else:
+            df = self.copy()
+            for col, mode in null_modes.items():
+                df[col] = df[col].fillna(mode[0])
+            return df
+
+    def fill_na_mean(self, inplace=False, verbose=True):
+        """Fills na cells with the mean of it's
+        respective column
+
+        Parameters
+        ----------------------------------------
+        inplace[bool]::
+            Defines whether to return a new dataframe or
+            mutate the dataframe.
+        verbose[bool]::
+            Whether to print out the filling information
+            or not.
+
+        Returns
+        ----------------------------------------
+        None if inplace, otherwise returns copy of dataframe
+        with nulls filled with mean
+
+        Example Usage
+        ----------------------------------------
+        >>> df = MLFrame(pd.DataFrame(np.arange(12).reshape(3, 4),
+        ...                   columns=['A', 'B', 'C', 'D']))
+        >>> df['A'].loc[1:3] = np.nan
+        >>> df['B'].loc[0] = np.nan
+        >>> df
+            A    B   C   D
+        0  0.0  NaN   2   3
+        1  NaN  5.0   6   7
+        2  NaN  9.0  10  11
+        >>> df.fill_na_mean()
+        Filling 66.67% of A with nan
+        Filling 33.33% of B with 9.0
+            A    B    C   D
+        0  0.0  7.0   2   3
+        1  0.0  5.0   6   7
+        2  0.0  9.0  10  11
+
+        """
+        nulls = self.isna().sum()
+        null_perc = nulls[nulls>0]/len(self)
+        null_cols = list(null_perc.index)
+        null_means = dict(self[null_cols].mean())
+        if verbose:
+            for col, perc in null_perc.items():
+                print("Filling %s" % (round(perc*100, 2)),
+                      "\b%", "of %s with %s"
+                    % (col, null_means[col]))
+        if inplace:
+            for col, mean in null_means.items():
+                self[col] = self[col].fillna(mean)
+        else:
+            df = self.copy()
+            for col, mean in null_means.items():
+                df[col] = df[col].fillna(mean)
+            return df
+
+    def fill_na_perc(self, inplace=False, verbose=True):
+        """
+        * Not implemented *
+        Fills na cells with the percent value_counts
+        of it's respective column
+
+        Parameters
+        ----------------------------------------
+        inplace[bool]::
+            Defines whether to return a new dataframe or
             mutate the dataframe
+        verbose[bool]::
+            Whether to print out how many were filled
+            in each column or not
 
         Returns
         ----------------------------------------
@@ -494,16 +718,7 @@ class MLFrame(pd.DataFrame):
         Example Usage
         ----------------------------------------
         """
-        null_cols = list(self.get_nulls().index)
-        null_modes = dict(self[null_cols].mode())
-        if inplace:
-            for col, mode in null_modes.items():
-                self[col] = self[col].fillna(mode[0])
-        else:
-            df = self.copy()
-            for col, mode in null_modes.items():
-                df[col] = df[col].fillna(mode[0])
-            return df
+        raise AttributeError('Not Implemented')
 
     def qq_plot(self, **kwargs):
         """Plots a statsmodels QQplot of the dataframe
@@ -519,6 +734,10 @@ class MLFrame(pd.DataFrame):
 
         Example Usage
         ----------------------------------------
+        >>> df = MLFrame(pd.read_csv('mltools/tests/auto-mpg.csv'))
+        >>> df.clean_col_names(inplace=True)
+        >>> df.lrmodel('mpg', inplace=True)
+        >>> df.qq_plot()
         """
         if self.model:
             return sm.graphics.qqplot(self.model.resid,
@@ -545,10 +764,12 @@ class MLFrame(pd.DataFrame):
 
         Returns
         ----------------------------------------
-        sm.graphics.qqplot()
-
         Example Usage
         ----------------------------------------
+        >>> df = MLFrame(pd.read_csv('mltools/tests/auto-mpg.csv'))
+        >>> df.clean_col_names(inplace=True)
+        >>> df.lrmodel('mpg', inplace=True)
+        >>> df.model_resid_scatter('mpg')
         """
         if ax:
             ax.scatter(x=self[target],
@@ -570,7 +791,7 @@ class MLFrame(pd.DataFrame):
                  target=None,
                  columns=[],
                  inplace=False,
-                 verbose=False,
+                 verbose=True,
                  **kwargs):
         """Creates a LinearRegression model of target
 
@@ -595,6 +816,11 @@ class MLFrame(pd.DataFrame):
 
         Example Usage
         ----------------------------------------
+        >>> df = MLFrame(pd.read_csv('mltools/tests/auto-mpg.csv'))
+        >>> df.clean_col_names(inplace=True)
+        >>> df.lrmodel('mpg', verbose=False, inplace=True)
+        >>> df.model.pvalues.max()
+        0.9996627853521083
         """
         if not target:
             raise AttributeError('No target defined')
@@ -611,7 +837,7 @@ class MLFrame(pd.DataFrame):
             if verbose:
                 display(model.summary())
         except NameError:
-            pass
+            print(model.summary())
         
         if inplace:
             self.model = model
@@ -639,6 +865,9 @@ class MLFrame(pd.DataFrame):
 
         Example Usage
         ----------------------------------------
+        >>> df = MLFrame(pd.read_csv('mltools/tests/auto-mpg.csv'))
+        >>> df.clean_col_names(inplace=True)
+        >>> df.model_and_plot('mpg')
         """
         self.lrmodel(target=target, inplace=True, verbose=True)
         model = self.model
@@ -650,7 +879,8 @@ class MLFrame(pd.DataFrame):
         return model
         
 
-    def plot_corr(self, figsize=(25, 25), annot=False):
+    def plot_corr(self, figsize=(25, 25), annot=False,
+                  **kwargs):
         """Plots a predefined correlation heatmap
 
         Parameters
@@ -659,6 +889,8 @@ class MLFrame(pd.DataFrame):
             The size of the plotted figure
         annot[bool]::
             Whether or not to annotate the cells
+        kwargs{dict}::
+            Arguments that are sent to sns.heatmap
 
         Returns
         ----------------------------------------
@@ -666,13 +898,16 @@ class MLFrame(pd.DataFrame):
         
         Example Usage
         ----------------------------------------
+        >>> df = MLFrame(pd.read_csv('mltools/tests/auto-mpg.csv'))
+        >>> df.clean_col_names(inplace=True, verbose=False)
+        >>> df.drop('car_name', axis=1, inplace=True)
+        >>> df.plot_corr(annot=True)
         """
         corr=np.abs(self.corr())
         fig, ax = plt.subplots(figsize=figsize)
         mask=np.zeros_like(corr, dtype=np.bool)
         mask[np.triu_indices_from(mask, k=0)] = True
-        sns.heatmap(corr,
-                    mask=mask,
+        kwds = dict(mask=mask,
                     cmap=sns.diverging_palette(240, 10, n=10),
                     annot=annot,
                     center=0,
@@ -680,6 +915,8 @@ class MLFrame(pd.DataFrame):
                     linewidths=1,
                     square=True,
                     cbar_kws={'shrink':0.6})
+        kwds.update(**kwargs)
+        sns.heatmap(corr, **kwds)
         return fig, ax
 
     def plot_coef(self):
@@ -794,7 +1031,7 @@ class MLFrame(pd.DataFrame):
                                   key=lambda x: x[0])[-1][1]
         try:
             display(model.summary())
-        except Exception:
+        except NameError:
             pass
         self.model = model
         fig, axes = plt.subplots(nrows=2, figsize=(10, 10))

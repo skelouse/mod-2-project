@@ -50,10 +50,23 @@ class Tester():
         log(self)
         scale(self)
         one_hot_encode(self)
-        
+        find_outliers_IQR(self)
+        find_outliers_Z(self)
+        outlier_removal(self)
+        get_nulls(self)
+        drop_nulls_perc(self)
+        ms_matrix(self)
+        fill_na_mode(self)
+        fill_na_mean(self)
+        qq_plot(self)
+        model_resid_scatter(self)
+        lrmodel(self)
+        plot_corr(self)
 
         if self.failed == 1:
             print("Failed 1 test, as expected")
+        elif self.failed == 0:
+            print("Fail test failed, error in Tester")
         else:
             print("Failed %s tests" % self.failed)
 
@@ -91,6 +104,65 @@ def one_hot_encode(t):  # added
     expected = 6  # sum of model_volvo
     t(one_hot_encode, expected)
 
+def find_outliers_IQR(t):  # added
+    from tests import find_outliers_IQR
+    expected = 10  # sum of horsepower IQR outliers
+    t(find_outliers_IQR, expected)
+
+def find_outliers_Z(t):  # added
+    from tests import find_outliers_Z
+    expected = 5  # sum of horsepower z_score outliers
+    t(find_outliers_Z, expected)
+
+def outlier_removal(t):  # added
+    from tests import outlier_removal
+    expected = 10
+    t(outlier_removal, expected)
+
+def get_nulls(t):  # added
+    from tests import get_nulls
+    expected = 2
+    t(get_nulls, expected)
+
+def drop_nulls_perc(t):  # added
+    from tests import drop_nulls_perc
+    expected = 1
+    t(drop_nulls_perc, expected)
+
+def ms_matrix(t):  # added
+    from tests import ms_matrix
+    expected = 1
+    t(ms_matrix, expected)
+
+def fill_na_mode(t):  # added
+    from tests import fill_na_mode
+    expected = 0
+    t(fill_na_mode, expected)
+
+def fill_na_mean(t):  # added
+    from tests import fill_na_mean
+    expected = 0
+    t(fill_na_mean, expected)
+
+def qq_plot(t):  # added
+    from tests import qq_plot
+    expected = 1
+    t(qq_plot, expected)
+
+def model_resid_scatter(t):  # added
+    from tests import model_resid_scatter
+    expected = 1
+    t(model_resid_scatter, expected)
+
+def lrmodel(t):  # added
+    from tests import lrmodel
+    expected = 0.96
+    t(lrmodel, expected)
+
+def plot_corr(t):  # added
+    from tests import plot_corr
+    expected = 1
+    t(plot_corr, expected)
 
 # skeleton
 """
@@ -102,10 +174,10 @@ def xxxxx(t):
 
 def quick_test(dft):
     """For building new tests"""
-    from tests import one_hot_encode
-    importlib.reload(one_hot_encode)
-    from tests import one_hot_encode
-    print(one_hot_encode.main(df_test))
+    from tests import plot_corr
+    importlib.reload(plot_corr)
+    from tests import plot_corr
+    print(plot_corr.main(df_test))
 
 
 def test_all(df):
@@ -118,7 +190,7 @@ def test_all(df):
     df_test = MLFrame(df)
 
     # change full to 0 for quick test
-    full = 1
+    full = 0
     if full:
         t.run_tests()
     else:

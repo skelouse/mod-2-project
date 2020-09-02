@@ -1,5 +1,5 @@
 def main(df):
-    """Testing the log function"""
+    """Testing the one_hot_encode function"""
     df.clean_col_names(verbose=False, inplace=True)
     df['model'] = df['car_name'].apply(
         lambda x: x.split(' ')[0]
