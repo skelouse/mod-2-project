@@ -919,17 +919,30 @@ class MLFrame(pd.DataFrame):
         sns.heatmap(corr, **kwds)
         return fig, ax
 
-    def plot_coef(self):
+    def plot_coef(self, cmap='Greens'):
         """Plots a predefined plot
         of the model's coefficients
+
+        cmap[str]:: Default is Greens
+            The style.background_gradient color
+            see:
+    https://matplotlib.org/3.3.1/tutorials/colors/colormaps.html
+
+        Returns
+        ----------------------------------------
+        <pandas.io.formats.style.Styler>
         
         Example Usage
         ----------------------------------------
+        >>> df = MLFrame(pd.read_csv('mltools/tests/auto-mpg.csv'))
+        >>> df.clean_col_names(inplace=True, verbose=False)
+        >>> df.drop('car_name', axis=1, inplace=True)
+        >>> df.plot_corr(annot=True)
         """
         coeffs = self.model.params.sort_values(ascending=False)
-        return coeffs.to_frame('Coefficients'
-                                   ).style.background_gradient(
-                                       cmap='Greens')
+        frame = coeffs.to_frame('Coefficients')
+        styler = frame.style.background_gradient(cmap=cmap)
+        return styler
 
     def regplot(self, x, y, **kwargs):
         """Plots a seaborn regplot of x and y
@@ -940,6 +953,8 @@ class MLFrame(pd.DataFrame):
             Name of a column to plot x
         y[str]::
             Name of a column to plot y
+        kwargs{dict}::
+            Arguments that are sent to sns.regplot
 
         Returns
         ----------------------------------------
@@ -947,6 +962,9 @@ class MLFrame(pd.DataFrame):
 
         Example Usage
         ----------------------------------------
+        >>> df = MLFrame(pd.read_csv('mltools/tests/auto-mpg.csv'))
+        >>> fig, ax = plt.subplots()
+        >>> df.regplot('horsepower', 'mpg', ax=ax)
         """
         return sns.regplot(x, y, data=self, **kwargs)
 
@@ -965,6 +983,9 @@ class MLFrame(pd.DataFrame):
 
         Example Usage
         ----------------------------------------
+        >>> df = MLFrame(pd.read_csv('mltools/tests/auto-mpg.csv'))
+        >>> fig, ax = plt.subplots()
+        >>> df.distplot('mpg', ax=ax)
         """
         return sns.distplot(self[target], **kwargs)
 
@@ -985,6 +1006,8 @@ class MLFrame(pd.DataFrame):
 
         Example Usage
         ----------------------------------------
+        >>> df = MLFrame(pd.read_csv('mltools/tests/auto-mpg.csv'))
+        >>> df.jointplot('horsepower', 'mpg')
         """
         return sns.jointplot(data=self, x=x, y=target, **kwargs)
 
@@ -1003,47 +1026,78 @@ class MLFrame(pd.DataFrame):
 
         Example Usage
         ----------------------------------------
+        >>> df = MLFrame(pd.read_csv('mltools/tests/auto-mpg.csv'))
+        >>> fig, ax = plt.subplots()
+        >>> df.boxplot('mpg', ax=ax)
         """
         return sns.boxplot(y=self[target], **kwargs)
 
-    def train_test_split(self, test_size=100, random_state=42):
+    def train_test_split(self,
+                         target,
+                         test_size=100,
+                         seed=42,
+                         verbose=True):
+        """
+        Parameters
+        ----------------------------------------
+        target[str]::
+            Name of the column of which to target
+        test_size[int]::
+            How many times to run the train_test_split
+        seed[int]::
+            The random seed to use
+        verbose[bool]::
+            Whether or not to show the model and plots\
+        
+        Returns
+        ----------------------------------------
+        model[sm.regression.linear_model.RegressionResultsWrapper]::
+            The best model of the train_test_split
+        model
+
+        """
         r2dict = {}
         r2scores = {}
         test_amount = test_size
         for x in range(0, test_amount):
-            np.random.seed(42)
+            np.random.seed(seed)
             choices = [.3, .2, .1, .05]
             c = np.random.choice(choices)
+            # X = self.drop(target, axis=1).copy()
+            # y = self[target].copy()
             df_train, df_test = train_test_split(
                                     self,
                                     test_size=c,
-                                    random_state=42)
+                                    random_state=seed)
             df_train = MLFrame(df_train)
             df_test = MLFrame(df_test)
-            model = df_train.lrmodel('price')
+
+            model = df_train.lrmodel(target, verbose=False)
             r2dict.update({model.rsquared:(
-                model, df_train['price'], c)})
+                model, df_train[target], c)})
             y_train = model.predict(df_train)
             y_test = model.predict(df_test)
-            r2_train = r2_score(df_train['price'],y_train)
-            r2_test = r2_score(df_test['price'],y_test)
+            r2_train = r2_score(df_train[target],y_train)
+            r2_test = r2_score(df_test[target],y_test)
         model, X, test_size = sorted(r2dict.items(),
                                   key=lambda x: x[0])[-1][1]
-        try:
-            display(model.summary())
-        except NameError:
-            pass
+        
         self.model = model
         fig, axes = plt.subplots(nrows=2, figsize=(10, 10))
         fig.tight_layout(pad=8.0)
         self.qq_plot(ax=axes[0])
         axes[1].scatter(X, self.model.resid)
         axes[1].axhline(0, color='k')
-        axes[1].set_xlabel('price')
+        axes[1].set_xlabel(target)
         axes[1].set_ylabel('Model Residuals')
-        print('test_size = ', test_size)
-        plt.show()
-        return model, X, test_size
+        if verbose:
+            print('test_size = ', test_size)
+            try:
+                display(model.summary())
+            except NameError:
+                print(model.summary())
+            plt.show()
+        return model
 
 
 def test_car():

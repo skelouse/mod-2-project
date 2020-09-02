@@ -62,6 +62,12 @@ class Tester():
         model_resid_scatter(self)
         lrmodel(self)
         plot_corr(self)
+        plot_coef(self)
+        regplot(self)
+        distplot(self)
+        jointplot(self)
+        boxplot(self)
+        train_test_split(self)
 
         if self.failed == 1:
             print("Failed 1 test, as expected")
@@ -164,6 +170,36 @@ def plot_corr(t):  # added
     expected = 1
     t(plot_corr, expected)
 
+def plot_coef(t):  # added
+    from tests import plot_coef
+    expected = 1
+    t(plot_coef, expected)
+
+def regplot(t):  # added
+    from tests import regplot
+    expected = 1
+    t(regplot, expected)
+
+def distplot(t):  # added
+    from tests import distplot
+    expected = 1
+    t(distplot, expected)
+
+def jointplot(t):  # added
+    from tests import jointplot
+    expected = 1
+    t(jointplot, expected)
+
+def boxplot(t):  # added
+    from tests import boxplot
+    expected = 1
+    t(boxplot, expected)
+
+def train_test_split(t):  # added
+    from tests import train_test_split
+    expected = 0.5028
+    t(train_test_split, expected)
+
 # skeleton
 """
 def xxxxx(t):
@@ -174,23 +210,22 @@ def xxxxx(t):
 
 def quick_test(dft):
     """For building new tests"""
-    from tests import plot_corr
-    importlib.reload(plot_corr)
-    from tests import plot_corr
-    print(plot_corr.main(df_test))
+    from tests import train_test_split
+    importlib.reload(train_test_split)
+    from tests import train_test_split
+    print(train_test_split.main(df_test))
 
 
 def test_all(df):
     """Called by load_then_test.py for hot_swapping code
     with the df staying the same
     """
-    list_of_tests = []
     t = Tester()
     global df_test
     df_test = MLFrame(df)
 
     # change full to 0 for quick test
-    full = 0
+    full = 1
     if full:
         t.run_tests()
     else:
