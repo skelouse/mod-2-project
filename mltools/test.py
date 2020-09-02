@@ -210,10 +210,10 @@ def xxxxx(t):
 
 def quick_test(dft):
     """For building new tests"""
-    from tests import train_test_split
-    importlib.reload(train_test_split)
-    from tests import train_test_split
-    print(train_test_split.main(df_test))
+    from tests import outlier_removal
+    importlib.reload(outlier_removal)
+    from tests import outlier_removal
+    print(outlier_removal.main(df_test))
 
 
 def test_all(df):
@@ -225,7 +225,7 @@ def test_all(df):
     df_test = MLFrame(df)
 
     # change full to 0 for quick test
-    full = 1
+    full = 0
     if full:
         t.run_tests()
     else:

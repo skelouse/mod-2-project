@@ -1,3 +1,5 @@
+import pandas as pd
+pd.set_option('display.float_format', lambda x: '%.3f' % x)
 def main(df):
     """Testing the train_test_split function"""
     df.clean_col_names(inplace=True, verbose=False)

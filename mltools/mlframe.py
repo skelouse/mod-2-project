@@ -4,7 +4,6 @@
 
 #possibly use cook's distance outlier removal  (YellowBrick package - Slack from James)
 
-# Default verbose True!!!!!!!!!!!!
 import copy
 import inspect
 import pandas as pd
@@ -18,6 +17,8 @@ from statsmodels.stats.outliers_influence import variance_inflation_factor
 from functools import wraps
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score
+import warnings
+warnings.filterwarnings('ignore')
 
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -99,6 +100,11 @@ class MLFrame(pd.DataFrame):
 
         Example Usage
         ----------------------------------------
+        >>> df = MLFrame(pd.read_csv('mltools/tests/auto-mpg.csv'))
+        >>> df.clean_col_names()
+        Columns changed:
+        model year --> model_year
+        car name --> car_name
         """
         def show_difference(old_cols, new_cols):
             diff = dict(zip(old_cols, new_cols))
@@ -142,10 +148,17 @@ class MLFrame(pd.DataFrame):
 
         Example Usage
         ----------------------------------------
-        df = MLFrame(pd.read_csv('mltools/tests/auto-mpg.csv'))
-        df.drop(['car name'], axis=1, inplace=True)
-        df.get_vif('mpg', verbose=False)
-
+        >>> df = MLFrame(pd.read_csv('mltools/tests/auto-mpg.csv'))
+        >>> df.drop(['car name'], axis=1, inplace=True)
+        >>> df.get_vif('mpg', verbose=False)
+        const          763.558
+        cylinders       10.738
+        displacement    21.837
+        horsepower       9.944
+        weight          10.831
+        acceleration     2.626
+        model year       1.245
+        origin           1.772
         """
         X = self.drop(target, axis=1)
         X= sm.add_constant(X)
@@ -178,9 +191,14 @@ class MLFrame(pd.DataFrame):
 
         Example Usage
         ----------------------------------------
-        df = MLFrame(pd.read_csv('mltools/tests/auto-mpg.csv'))
-        df.drop(['car name'], axis=1, inplace=True)
-        df.get_vif_cols('mpg', verbose=False)
+        >>> df = MLFrame(pd.read_csv('mltools/tests/auto-mpg.csv'))
+        >>> df.drop(['car name'], axis=1, inplace=True)
+        >>> df.get_vif_cols('mpg', verbose=False)
+        horsepower      9.944
+        cylinders      10.738
+        weight         10.831
+        displacement   21.837
+        dtype: float64
         """
         vif_results = self.get_vif(target, verbose=False)
         bad_vif = list(vif_results[vif_results>threshold].index)
@@ -204,7 +222,7 @@ class MLFrame(pd.DataFrame):
             Defines whether to return a new dataframe or
             mutate the dataframe
         verbose[bool]::
-            Whether to print out the series or not
+            Whether to print out logged columns or not
 
         Returns
         ----------------------------------------
@@ -213,13 +231,25 @@ class MLFrame(pd.DataFrame):
 
         Example Usage
         ----------------------------------------
-        df = MLFrame(pd.read_csv('mltools/tests/auto-mpg.csv'))
-        df.drop(['car name'], axis=1, inplace = True)
+        >>> df = MLFrame(pd.read_csv('mltools/tests/auto-mpg.csv'))
+        >>> df.drop(['car name'], axis=1, inplace = True)
         
-        df = df.log(columns=['mpg', cylinders], verbose=False)
+        >>> df = df.log(columns=['mpg', 'cylinders'])
+        Logging:
+           mpg
+           cylinders
         # OR
-        df.log('mpg', inplace=True)
+        >>> df.log('mpg', inplace=True)
+        Logging:
+           mpg
         """
+        if verbose:
+            print("Logging:")
+            if isinstance(columns, list):
+                for col in columns:
+                    print("  ", col)
+            else:
+                print("  ", columns)
         if inplace:
             if isinstance(columns, list):
                 for col in columns:
@@ -245,7 +275,7 @@ class MLFrame(pd.DataFrame):
             Defines whether to return a new dataframe or
             mutate the dataframe
         verbose[bool]::
-            Whether to print out the series or not
+            Whether to print out the scaled columns or not
 
         Returns:
             None if inplace otherwise returns a copy
@@ -253,17 +283,28 @@ class MLFrame(pd.DataFrame):
 
         Example Usage
         ----------------------------------------
-        df = MLFrame(pd.read_csv('mltools/tests/auto-mpg.csv'))
-        df.drop(['car name'], axis=1, inplace = True)
-
-        df = df.scale(columns=['mpg', cylinders], verbose=False)
+        >>> df = MLFrame(pd.read_csv('mltools/tests/auto-mpg.csv'))
+        >>> df.drop(['car name'], axis=1, inplace = True)
+        
+        >>> df = df.scale(columns=['mpg', 'cylinders'])
+        Scaling:
+           mpg
+           cylinders
         # OR
-        df.scale('mpg', inplace=True)
+        >>> df.scale('mpg', inplace=True)
+        Scaling:
+           mpg
         """
         def scale(df, col):
             df[col] = ((df[col] - np.mean(df[col]))
                       / np.sqrt(np.var(df[col])))
-
+        if verbose:
+            print("Logging:")
+            if isinstance(columns, list):
+                for col in columns:
+                    print("  ", col)
+            else:
+                print("  ", columns)
         if inplace:
             if isinstance(columns, list):
                 for col in columns:
@@ -336,6 +377,8 @@ class MLFrame(pd.DataFrame):
             Whether to print out the series or not
         kwargs{dict}::
             Arguments to send to pd.get_dummies
+            see:
+        https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.get_dummies.html
 
         Returns
         ----------------------------------------
@@ -343,11 +386,14 @@ class MLFrame(pd.DataFrame):
 
         Example Usage
         ----------------------------------------
-        df = MLFrame(pd.read_csv('mltools/tests/auto-mpg.csv'))
-        df.clean_col_names(verbose=False, inplace=True)
-        df['model'] = df['car_name'].apply(
-            lambda x: x.split(' ')[0])
-        df_ohe = df.one_hot_encode(columns=['model'])
+        >>> df = MLFrame(pd.read_csv('mltools/tests/auto-mpg.csv'))
+        >>> df.clean_col_names(verbose=False, inplace=True)
+        >>> # splitting car_name into model for categorizing
+        >>> df['model'] = df['car_name'].apply(
+        >>>     lambda x: x.split(' ')[0])
+        >>> df_ohe = df.one_hot_encode(columns=['model'])
+        Added categorical columns
+        37 -> model
         """
         if not isinstance(columns, list):
             raise(AttributeError('%s not a list' % columns))
@@ -390,9 +436,10 @@ class MLFrame(pd.DataFrame):
 
         Example Usage
         ----------------------------------------
-        df = MLFrame(pd.read_csv('mltools/tests/auto-mpg.csv'))
-        idx_outliers = df.find_outliers_IQR('horsepower', verbose=True)
-        df = MLFrame(df[~idx_outliers])
+        >>> df = MLFrame(pd.read_csv('mltools/tests/auto-mpg.csv'))
+        >>> idx_outliers = df.find_outliers_IQR('horsepower', verbose=True)
+        Found 10 outliers using IQR in horsepower or ~ 2.55%
+        >>> df = MLFrame(df[~idx_outliers])
         """
         data = self[col]
         res = data.describe()
@@ -421,9 +468,10 @@ class MLFrame(pd.DataFrame):
 
         Example Usage
         ----------------------------------------
-        df = MLFrame(pd.read_csv('mltools/tests/auto-mpg.csv'))
-        idx_outliers = df.find_outliers_Z('horsepower', verbose=True)
-        df = MLFrame(df[~idx_outliers])
+        >>> df = MLFrame(pd.read_csv('mltools/tests/auto-mpg.csv'))
+        >>> idx_outliers = df.find_outliers_Z('horsepower', verbose=True)
+        Found 5 outliers using IQR in horsepower or ~ 1.28%
+        >>> df = MLFrame(df[~idx_outliers])
         """
         data = self[col]
         z_scores = np.abs(stats.zscore(data))
@@ -455,7 +503,8 @@ class MLFrame(pd.DataFrame):
             Whether or not to remove outliers
             using z_score method
         verbose[bool]::
-            Whether to print out the series or not        
+            Whether to print how many outliers were
+            found in each column or now       
 
         Returns
         ----------------------------------------
@@ -463,13 +512,18 @@ class MLFrame(pd.DataFrame):
 
         Example Usage
         ----------------------------------------
-        df = MLFrame(pd.read_csv('mltools/tests/auto-mpg.csv'))
-        df = df.outlier_removal('horsepower',
-                                 IQR=True)
-        # OR
-        df = df.outlier_removal(['horsepower', 'mpg'], 
-                                 z_score=True,
-                                 verbose=False)
+        >>> df = MLFrame(pd.read_csv('mltools/tests/auto-mpg.csv'))
+        >>> df = df.outlier_removal('horsepower',
+        ...                          IQR=True)
+        Found 10 outliers using IQR in horsepower or ~ 2.55%
+        Removed
+        >>> # OR
+        >>> df = df.outlier_removal(['horsepower', 'mpg'], 
+                                 z_score=True)
+        Found 10 outliers using IQR in horsepower or ~ 2.55%
+        Removed
+        Found 0 outliers using IQR in mpg or ~ 0.0%
+        Removed
         """
         if IQR:
             func = partial(self.find_outliers_IQR,
@@ -484,11 +538,15 @@ class MLFrame(pd.DataFrame):
                 columns = self.columns
             for col in columns:
                 outliers = func(col)
+                num = len(df)
                 df = df[~outliers]
+                if verbose:
+                    print('Removed')
         else:
             outliers = func(columns)
             df = df[~outliers]
-
+            if verbose:
+                print('Removed')
         return df
 
     def get_nulls(self, verbose=True):
@@ -629,7 +687,7 @@ class MLFrame(pd.DataFrame):
             for col, perc in null_perc.items():
                 print("Filling %s" % (round(perc*100, 2)),
                       "\b%", "of %s with %s"
-                    % (col, null_modes[col][1]))
+                    % (col, null_modes[col]))
         if inplace:
             for col, mode in null_modes.items():
                 self[col] = self[col].fillna(mode[0])
@@ -727,6 +785,8 @@ class MLFrame(pd.DataFrame):
         ----------------------------------------
         kwargs{dict}::
             Arguments to send to sm.graphics.qqplot()
+            see:
+        https://www.statsmodels.org/stable/generated/statsmodels.graphics.gofplots.qqplot.html
 
         Returns
         ----------------------------------------
@@ -758,9 +818,12 @@ class MLFrame(pd.DataFrame):
             The axis to plot onto
         scatter_kws{dict}::
             Arguments to send to the scatter plot
+            see:
+        https://matplotlib.org/3.3.1/api/_as_gen/matplotlib.pyplot.scatter.html
         line_kws{dict}::
             Arguments to send to the axhline
-
+            see:
+        https://matplotlib.org/3.3.1/api/_as_gen/matplotlib.pyplot.axhline.html
 
         Returns
         ----------------------------------------
@@ -809,6 +872,8 @@ class MLFrame(pd.DataFrame):
             Whether or not to display the model.summary()
         kwargs{dict}::
             Arguments that are sent to Model.from_formula()
+            see:
+        https://www.statsmodels.org/stable/generated/statsmodels.formula.api.ols.html
 
         Returns
         ----------------------------------------
@@ -827,12 +892,12 @@ class MLFrame(pd.DataFrame):
         if not columns:
             columns = self.drop(target, axis=1).columns
         cols_form = '+'.join(columns)
-        #cols_form = cols_form.replace(' ', '')
+        # cols_form = cols_form.replace(' ', '')
         formula='%s~%s' % (target, cols_form)
         # possibly svd did not converge here
-        model = smf.ols(formula=formula,
-                        data=self,
-                        **kwargs).fit()
+        kwds = dict(formula=formula, data=self)
+        kwds.update(**kwargs)
+        model = smf.ols(**kwds).fit()
         try:  # undefined if used outside jupyter
             if verbose:
                 display(model.summary())
@@ -858,6 +923,8 @@ class MLFrame(pd.DataFrame):
             The target for which to model on
         kwargs{dict}::
             Arguments that are sent to Model.from_formula()
+            see:
+        https://www.statsmodels.org/stable/generated/statsmodels.formula.api.ols.html
 
         Returns
         ----------------------------------------
@@ -891,6 +958,8 @@ class MLFrame(pd.DataFrame):
             Whether or not to annotate the cells
         kwargs{dict}::
             Arguments that are sent to sns.heatmap
+            see:
+        https://seaborn.pydata.org/generated/seaborn.heatmap.html
 
         Returns
         ----------------------------------------
@@ -926,7 +995,7 @@ class MLFrame(pd.DataFrame):
         cmap[str]:: Default is Greens
             The style.background_gradient color
             see:
-    https://matplotlib.org/3.3.1/tutorials/colors/colormaps.html
+        https://matplotlib.org/3.3.1/tutorials/colors/colormaps.html
 
         Returns
         ----------------------------------------
@@ -955,6 +1024,8 @@ class MLFrame(pd.DataFrame):
             Name of a column to plot y
         kwargs{dict}::
             Arguments that are sent to sns.regplot
+            see:
+        https://seaborn.pydata.org/generated/seaborn.regplot.html
 
         Returns
         ----------------------------------------
@@ -976,6 +1047,9 @@ class MLFrame(pd.DataFrame):
             Name of the column of which to plot
         kwargs{dict}::
             Arguments to send in with sns.distplot()
+            see:
+        https://seaborn.pydata.org/generated/seaborn.distplot.html
+            
         
         Returns
         ----------------------------------------
@@ -999,6 +1073,8 @@ class MLFrame(pd.DataFrame):
             Name of the column of which to target
         kwargs{dict}::
             Arguments to send in with sns.jointplot()
+            see:
+        https://seaborn.pydata.org/generated/seaborn.jointplot.html
         
         Returns
         ----------------------------------------
@@ -1019,6 +1095,8 @@ class MLFrame(pd.DataFrame):
             Name of the column of which to plot
         kwargs{dict}::
             Arguments to send in with sns.boxplot()
+            see:
+        https://seaborn.pydata.org/generated/seaborn.boxplot.html
         
         Returns
         ----------------------------------------
@@ -1047,14 +1125,30 @@ class MLFrame(pd.DataFrame):
         seed[int]::
             The random seed to use
         verbose[bool]::
-            Whether or not to show the model and plots\
+            Whether or not to show the model and plots
         
         Returns
         ----------------------------------------
         model[sm.regression.linear_model.RegressionResultsWrapper]::
             The best model of the train_test_split
-        model
-
+        
+        Example Usage
+        ----------------------------------------
+        >>> df = MLFrame(pd.read_csv('mltools/tests/auto-mpg.csv'))
+        >>> df.clean_col_names(inplace=True)
+        >>> df.drop(['car_name', 'origin'], axis=1, inplace=True)
+        >>> model = df.train_test_split('mpg',
+                                        test_size=5,
+                                        verbose=False)
+        >>> model.pvalues
+        Intercept      0.005
+        cylinders      0.503
+        displacement   0.688
+        horsepower     0.868
+        weight         0.000
+        acceleration   0.510
+        model_year     0.000
+        dtype: float64
         """
         r2dict = {}
         r2scores = {}
