@@ -6,6 +6,7 @@
 
 import copy
 import inspect
+from matplotlib.pyplot import title
 import pandas as pd
 import numpy as np
 from functools import wraps, partial
@@ -800,12 +801,15 @@ class MLFrame(pd.DataFrame):
         >>> df.qq_plot()
         """
         if self.model:
+            if 'ax' in kwargs:
+                kwargs['ax'].set_title('Model Residual QQ plot')
             return sm.graphics.qqplot(self.model.resid,
                         fit=True, line='45', **kwargs)
         else:
             raise AttributeError('No model defined')
 
     def model_resid_scatter(self, target, ax=None,
+                            title='',
                             scatter_kws={}, line_kws={}):
         """Plots a scatter plot and axhline 
         based on target and the model's residuals
@@ -814,6 +818,8 @@ class MLFrame(pd.DataFrame):
         ----------------------------------------
         target[str]::
             The target of the model
+        title[str]::
+            The title of the plot
         ax[matplotlib.axes]:
             The axis to plot onto
         scatter_kws{dict}::
@@ -835,6 +841,7 @@ class MLFrame(pd.DataFrame):
         >>> df.model_resid_scatter('mpg')
         """
         if ax:
+            ax.set_title(title)
             ax.scatter(x=self[target],
                        y=self.model.resid,
                        **scatter_kws)
@@ -842,6 +849,7 @@ class MLFrame(pd.DataFrame):
             ax.set_xlabel(target)
             ax.set_ylabel('Model Residuals')
         else:
+            plt.title(title)
             plt.scatter(self[target],
                         self.model.resid,
                         **scatter_kws)
@@ -942,6 +950,7 @@ class MLFrame(pd.DataFrame):
         fig.tight_layout(pad=8.0)
         self.qq_plot(ax=axes[0])
         self.model_resid_scatter(target, ax=axes[1],
+            title='Model Residual Scatter plot',
             line_kws=dict(color='k'))
         return model
         
