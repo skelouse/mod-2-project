@@ -213,7 +213,7 @@ def quick_test(dft):
     from tests import outlier_removal
     importlib.reload(outlier_removal)
     from tests import outlier_removal
-    print(find_outliers_Z.main(df_test))
+    print(outlier_removal.main(df_test))
 
 
 def test_all(df):
@@ -225,7 +225,7 @@ def test_all(df):
     df_test = MLFrame(df)
 
     # change full to 0 for quick test
-    full = 0
+    full = 1
     if full:
         t.run_tests()
     else:

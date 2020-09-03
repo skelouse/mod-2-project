@@ -170,7 +170,8 @@ class MLFrame(pd.DataFrame):
             print(s)
         return s
 
-    def get_vif_cols(self, target, threshold=6, verbose=True):
+    def get_vif_cols(self, target, threshold=6, verbose=True,
+                     inplace=False):
         """ Computes Variance Inflation Factor
         for the dataframe, and gets the columns
         that are above the defined threshold
@@ -185,9 +186,12 @@ class MLFrame(pd.DataFrame):
             looked at
         verbose[bool]::
             Whether to print out the series or not
+        inplace[bool]::
+            Whether to return the series or not
 
         Returns
         ----------------------------------------
+        Depending on inplace
         Series of variance_inflation_factor for each column
 
         Example Usage
@@ -210,8 +214,10 @@ class MLFrame(pd.DataFrame):
             num_vif[col] = vif_results[col]
         s = pd.Series(num_vif).sort_values()
         if verbose:
-            print('\nVIF columns > %s'%threshold, s)
-        return s
+            print('\nVIF columns > %s: \n%s'
+                  % (threshold, s))
+        if not inplace:
+            return s
 
     def log(self, columns, inplace=False, verbose=True):
         """ logs the listed columns of the dataframe
@@ -300,7 +306,7 @@ class MLFrame(pd.DataFrame):
             df[col] = ((df[col] - np.mean(df[col]))
                       / np.sqrt(np.var(df[col])))
         if verbose:
-            print("Logging:")
+            print("Scaling:")
             if isinstance(columns, list):
                 for col in columns:
                     print("  ", col)
@@ -471,7 +477,7 @@ class MLFrame(pd.DataFrame):
         ----------------------------------------
         >>> df = MLFrame(pd.read_csv('mltools/tests/auto-mpg.csv'))
         >>> idx_outliers = df.find_outliers_Z('horsepower', verbose=True)
-        Found 5 outliers using IQR in horsepower or ~ 1.28%
+        Found 5 outliers using z_score in horsepower or ~ 1.28%
         >>> df = MLFrame(df[~idx_outliers])
         """
         data = self[col]
@@ -481,7 +487,7 @@ class MLFrame(pd.DataFrame):
         if verbose:
             total = idx_outliers.sum()
             total_perc = round((total/len(self))*100, 2)
-            print("Found {} outliers using IQR in {} or ~ {}%"
+            print("Found {} outliers using z_score in {} or ~ {}%"
                   .format(total, col, total_perc))
         return idx_outliers    
 
@@ -521,9 +527,9 @@ class MLFrame(pd.DataFrame):
         >>> # OR
         >>> df = df.outlier_removal(['horsepower', 'mpg'], 
                                  z_score=True)
-        Found 10 outliers using IQR in horsepower or ~ 2.55%
+        Found 10 outliers using z_score in horsepower or ~ 2.55%
         Removed
-        Found 0 outliers using IQR in mpg or ~ 0.0%
+        Found 0 outliers using z_score in mpg or ~ 0.0%
         Removed
         """
         if IQR:
@@ -575,7 +581,7 @@ class MLFrame(pd.DataFrame):
         """
         nulls = self.isna().sum()
         if verbose:
-            print(nulls)
+            print(nulls.sort_values(ascending=True))
         nulls = nulls.sum()
         return nulls
 
@@ -997,6 +1003,7 @@ class MLFrame(pd.DataFrame):
         sns.heatmap(corr, **kwds)
         return fig, ax
 
+    # needs testing, has to have a model before
     def plot_coef(self, cmap='Greens'):
         """Plots a predefined plot
         of the model's coefficients
@@ -1015,7 +1022,7 @@ class MLFrame(pd.DataFrame):
         >>> df = MLFrame(pd.read_csv('mltools/tests/auto-mpg.csv'))
         >>> df.clean_col_names(inplace=True, verbose=False)
         >>> df.drop('car_name', axis=1, inplace=True)
-        >>> df.plot_corr(annot=True)
+        >>> df.plot_coef()
         """
         coeffs = self.model.params.sort_values(ascending=False)
         frame = coeffs.to_frame('Coefficients')
@@ -1118,6 +1125,28 @@ class MLFrame(pd.DataFrame):
         >>> df.boxplot('mpg', ax=ax)
         """
         return sns.boxplot(y=self[target], **kwargs)
+
+    def get_r_squareds(self, verbose=True):
+        """
+        Tests models price to each column in the dataframe.
+
+        Parameters
+        ----------------------------------------
+        verbose[bool]::
+            Whether to print out the series or not
+        
+        Returns
+        ----------------------------------------
+        sorted pd.Series of columns --> r_squared"""
+        r_squared = {}
+        for col in self.columns:
+            model = self.lrmodel('price', [col], verbose=False)
+            r_squared[col] =  model.rsquared
+        rs = pd.Series(r_squared).sort_values()
+        if verbose:
+            print("R Squareds")
+            print(rs)
+        return rs
 
     def train_test_split(self,
                          target,
