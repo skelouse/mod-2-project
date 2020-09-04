@@ -1,7 +1,6 @@
-# add verbose argument to print more information on some functions
-# figure out wraps
 # do examples in the doc strings
 
+# add columns for the plots
 #possibly use cook's distance outlier removal  (YellowBrick package - Slack from James)
 
 import copy
@@ -251,7 +250,7 @@ class MLFrame(pd.DataFrame):
            mpg
         """
         if verbose:
-            print("Logging:")
+            print("\nLogging:")
             if isinstance(columns, list):
                 for col in columns:
                     print("  ", col)
@@ -306,7 +305,7 @@ class MLFrame(pd.DataFrame):
             df[col] = ((df[col] - np.mean(df[col]))
                       / np.sqrt(np.var(df[col])))
         if verbose:
-            print("Scaling:")
+            print("\nScaling:")
             if isinstance(columns, list):
                 for col in columns:
                     print("  ", col)
