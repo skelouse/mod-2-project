@@ -537,7 +537,11 @@ class MLFrame(pd.DataFrame):
         elif z_score:
             func = partial(self.find_outliers_Z,
                            verbose=verbose)
-
+        try:
+            func
+        except UnboundLocalError:
+            msg = "No method defined, try z_score=True, or IQR=True"
+            raise AttributeError(msg)
         df = self.copy()
         if isinstance(columns, list):
             if not columns:
