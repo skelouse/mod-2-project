@@ -11,7 +11,7 @@
 **Author**: <a href="https://sites.google.com/skelouse.com/home/">Sam Stoltenberg</a>
 
 ## This repository contains
- -  A Jupyter notebook <a href="https://github.com/skelouse/mod-2-project/blob/master/student.ipynb">`student.ipynb`</a> showing our analysis of the King's county housing dataset.
+ -  A Jupyter notebook <a href="https://github.com/skelouse/mod-2-project/blob/master/student.ipynb">`student.ipynb`</a> showing our analysis of the King's county housing dataset.  I recommend checking out the <a href="https://github.com/skelouse/mod-2-project/blob/master/html notebook/student.html">`student.html`</a> for a non-runnable technical notebook.
 - The dataset itself
 - An interactive <a href="https://github.com/skelouse/mod-2-project/blob/master/map.html">`map.html`</a> map of King's county
 - A module <a href="https://github.com/skelouse/mod-2-project/tree/master/mltools">`mltools`</a> that we built for this project for use in Linear Regression.
