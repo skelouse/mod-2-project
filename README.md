@@ -1,5 +1,34 @@
 <h1>Table of Contents<span class="tocSkip"></span></h1>
-<div class="toc"><ul class="toc-item"><li><span><a href="#Location,-Location,-Location!" data-toc-modified-id="Location,-Location,-Location!-1"><span class="toc-item-num">1&nbsp;&nbsp;</span>Location, Location, Location!</a></span></li><li><span><a href="#Linear-Regression-on-Housing-Data" data-toc-modified-id="Linear-Regression-on-Housing-Data-2"><span class="toc-item-num">2&nbsp;&nbsp;</span>Linear Regression on Housing Data</a></span><ul class="toc-item"><li><span><a href="#This-repository-contains" data-toc-modified-id="This-repository-contains-2.1"><span class="toc-item-num">2.1&nbsp;&nbsp;</span>This repository contains</a></span></li><li><span><a href="#Questions" data-toc-modified-id="Questions-2.2"><span class="toc-item-num">2.2&nbsp;&nbsp;</span>Questions</a></span></li><li><span><a href="#Column-Names-and-Descriptions" data-toc-modified-id="Column-Names-and-Descriptions-2.3"><span class="toc-item-num">2.3&nbsp;&nbsp;</span>Column Names and Descriptions</a></span></li><li><span><a href="#Using-the-OSEMN-Process" data-toc-modified-id="Using-the-OSEMN-Process-2.4"><span class="toc-item-num">2.4&nbsp;&nbsp;</span>Using the OSEMN Process</a></span></li><li><span><a href="#Results" data-toc-modified-id="Results-2.5"><span class="toc-item-num">2.5&nbsp;&nbsp;</span>Results</a></span></li><li><span><a href="#Recommendations" data-toc-modified-id="Recommendations-2.6"><span class="toc-item-num">2.6&nbsp;&nbsp;</span>Recommendations</a></span></li><li><span><a href="#Next-Steps" data-toc-modified-id="Next-Steps-2.7"><span class="toc-item-num">2.7&nbsp;&nbsp;</span>Next Steps</a></span><ul class="toc-item"><li><span><a href="#Repository-Structure" data-toc-modified-id="Repository-Structure-2.7.1"><span class="toc-item-num">2.7.1&nbsp;&nbsp;</span>Repository Structure</a></span></li></ul></li></ul></li></ul></div>
+<div class="toc">
+  <ul class="toc-item">
+    <li><span><a href="#Location,-Location,-Location!" data-toc-modified-id="Location,-Location,-Location!-1"><span
+            class="toc-item-num">1&nbsp;&nbsp;</span>Location, Location, Location!</a></span></li>
+    <li><span><a href="#Linear-Regression-on-Housing-Data"
+          data-toc-modified-id="Linear-Regression-on-Housing-Data-2"><span
+            class="toc-item-num">2&nbsp;&nbsp;</span>Linear Regression on Housing Data</a></span>
+      <ul class="toc-item">
+        <li><span><a href="#This-repository-contains" data-toc-modified-id="This-repository-contains-2.1"><span
+                class="toc-item-num">2.1&nbsp;&nbsp;</span>This repository contains</a></span></li>
+        <li><span><a href="#Questions" data-toc-modified-id="Questions-2.2"><span
+                class="toc-item-num">2.2&nbsp;&nbsp;</span>Questions</a></span></li>
+        <li><span><a href="#Column-Names-and-Descriptions"
+              data-toc-modified-id="Column-Names-and-Descriptions-2.3"><span
+                class="toc-item-num">2.3&nbsp;&nbsp;</span>Column Names and Descriptions</a></span></li>
+        <li><span><a href="#Using-the-OSEMN-Process" data-toc-modified-id="Using-the-OSEMN-Process-2.4"><span
+                class="toc-item-num">2.4&nbsp;&nbsp;</span>Using the OSEMN Process</a></span></li>
+        <li><span><a href="#Results" data-toc-modified-id="Results-2.5"><span
+                class="toc-item-num">2.5&nbsp;&nbsp;</span>Results</a></span></li>
+        <li><span><a href="#Recommendations" data-toc-modified-id="Recommendations-2.6"><span
+                class="toc-item-num">2.6&nbsp;&nbsp;</span>Recommendations</a></span></li>
+        <li><span><a href="#Next-Steps" data-toc-modified-id="Next-Steps-2.7"><span
+                class="toc-item-num">2.7&nbsp;&nbsp;</span>Next Steps</a></span></li>
+        <li><span><a href="#Repository-Structure" data-toc-modified-id="Repository-Structure-2.8"><span
+                class="toc-item-num">2.8&nbsp;&nbsp;</span>Repository Structure</a></span></li>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
 
 
 # Location, Location, Location!
@@ -11,12 +40,12 @@
 **Author**: <a href="https://sites.google.com/skelouse.com/home/">Sam Stoltenberg</a>
 
 ## This repository contains
- -  A Jupyter notebook <a href="https://github.com/skelouse/mod-2-project/blob/master/student.ipynb">`student.ipynb`</a> showing our analysis of the King's county housing dataset.
+ -  A Jupyter notebook <a href="https://github.com/skelouse/mod-2-project/blob/master/student.ipynb">`student.ipynb`</a> showing our analysis of the King's county housing dataset.  I recommend checking out the <a href="https://github.com/skelouse/mod-2-project/blob/master/html notebook/student.html">`student.html`</a> for a non-runnable technical notebook.
 - The dataset itself
 - An interactive <a href="https://github.com/skelouse/mod-2-project/blob/master/map.html">`map.html`</a> map of King's county
 - A module <a href="https://github.com/skelouse/mod-2-project/tree/master/mltools">`mltools`</a> that we built for this project for use in Linear Regression.
 - A PowerPoint <a href="https://github.com/skelouse/mod-2-project/blob/master/presentation.pdf">presentation</a> of the data
-- Two more Jupyter notebooks that we made in originally learning and attempting to conquer the data <a href="https://github.com/skelouse/mod-2-project/blob/master/student_old_1.ipynb">`student_old_1.ipynb`</a> and <a href="https://github.com/skelouse/mod-2-project/blob/master/student_old_2.ipynb">`student_old_2.ipynb`</a>
+- Two more Jupyter notebooks that we made while originally learning and attempting to conquer the data <a href="https://github.com/skelouse/mod-2-project/blob/master/student_old_1.ipynb">`student_old_1.ipynb`</a> and <a href="https://github.com/skelouse/mod-2-project/blob/master/student_old_2.ipynb">`student_old_2.ipynb`</a>
 
 
 
@@ -100,7 +129,7 @@ greater value increase.
 For any additional questions, please contact <a href="mailto:sam@skelouse.com">Sam Stoltenberg</a>)
 
 
-### Repository Structure
+## Repository Structure
 
 ```
 |   blog.ipynb
