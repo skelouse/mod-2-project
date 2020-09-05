@@ -100,7 +100,7 @@ greater value increase.
 For any additional questions, please contact <a href="mailto:sam@skelouse.com">Sam Stoltenberg</a>)
 
 
-### Repository Structure
+## Repository Structure
 
 ```
 |   blog.ipynb
