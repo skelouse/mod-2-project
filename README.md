@@ -4,7 +4,7 @@
 
 # Location, Location, Location!
 <br></br>
-![output_132_1.png](./html notebook/output_132_1.png)
+![output_132_1.png](/img/output_132_1.png)
 <br></br>
 # Linear Regression on Housing Data
 
@@ -61,7 +61,7 @@
 
 ## Results:
 
-![output_120_0.png](/html notebook/output_120_0.png)
+![output_120_0.png](/img/output_120_0.png)
 <div class="shadow alert alert-success">
   <strong>From the Plot:</strong> 
     <ul>
@@ -71,7 +71,7 @@
 </div>
 
 
-![output_123_0.png](/html notebook/output_123_0.png)
+![output_123_0.png](/img/output_123_0.png)
 <div class="shadow alert alert-success">
   <strong>From the Plot:</strong> 
     <ul>
