@@ -4,7 +4,7 @@
 
 # Location, Location, Location!
 <br></br>
-![output_132_1.png](/html notebook/output_132_1.png)
+![output_132_1.png](./html notebook/output_132_1.png)
 <br></br>
 # Linear Regression on Housing Data
 
