@@ -22,8 +22,8 @@
                 class="toc-item-num">2.6&nbsp;&nbsp;</span>Recommendations</a></span></li>
         <li><span><a href="#Next-Steps" data-toc-modified-id="Next-Steps-2.7"><span
                 class="toc-item-num">2.7&nbsp;&nbsp;</span>Next Steps</a></span></li>
-        <li><span><a href="#Repository-Structure" data-toc-modified-id="Repository-Structure-2.7.1"><span
-                class="toc-item-num">2.7.1&nbsp;&nbsp;</span>Repository Structure</a></span></li>
+        <li><span><a href="#Repository-Structure" data-toc-modified-id="Repository-Structure-2.8"><span
+                class="toc-item-num">2.8&nbsp;&nbsp;</span>Repository Structure</a></span></li>
         </li>
       </ul>
     </li>
