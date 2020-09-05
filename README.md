@@ -1,5 +1,5 @@
 <h1>Table of Contents<span class="tocSkip"></span></h1>
-<div class="toc"><ul class="toc-item"><li><span><a href="#Location,-Location,-Location!" data-toc-modified-id="Location,-Location,-Location!-1"><span class="toc-item-num">1&nbsp;&nbsp;</span>Location, Location, Location!</a></span></li><li><span><a href="#Linear-Regression-on-Housing-Data" data-toc-modified-id="Linear-Regression-on-Housing-Data-2"><span class="toc-item-num">2&nbsp;&nbsp;</span>Linear Regression on Housing Data</a></span><ul class="toc-item"><li><span><a href="#This-repository-contains:" data-toc-modified-id="This-repository-contains:-2.1"><span class="toc-item-num">2.1&nbsp;&nbsp;</span>This repository contains:</a></span></li><li><span><a href="#Questions:" data-toc-modified-id="Questions:-2.2"><span class="toc-item-num">2.2&nbsp;&nbsp;</span>Questions:</a></span></li><li><span><a href="#Column-Names-and-Descriptions" data-toc-modified-id="Column-Names-and-Descriptions-2.3"><span class="toc-item-num">2.3&nbsp;&nbsp;</span>Column Names and Descriptions</a></span></li><li><span><a href="#Using-the-OSEMN-Process" data-toc-modified-id="Using-the-OSEMN-Process-2.4"><span class="toc-item-num">2.4&nbsp;&nbsp;</span>Using the OSEMN Process</a></span></li><li><span><a href="#Results:" data-toc-modified-id="Results:-2.5"><span class="toc-item-num">2.5&nbsp;&nbsp;</span>Results:</a></span></li><li><span><a href="#Recommendations:" data-toc-modified-id="Recommendations:-2.6"><span class="toc-item-num">2.6&nbsp;&nbsp;</span>Recommendations:</a></span></li><li><span><a href="#Next-Steps:" data-toc-modified-id="Next-Steps:-2.7"><span class="toc-item-num">2.7&nbsp;&nbsp;</span>Next Steps:</a></span><ul class="toc-item"><li><span><a href="#Repository-Structure:" data-toc-modified-id="Repository-Structure:-2.7.1"><span class="toc-item-num">2.7.1&nbsp;&nbsp;</span>Repository Structure:</a></span></li></ul></li></ul></li></ul></div>
+<div class="toc"><ul class="toc-item"><li><span><a href="#Location,-Location,-Location!" data-toc-modified-id="Location,-Location,-Location!-1"><span class="toc-item-num">1&nbsp;&nbsp;</span>Location, Location, Location!</a></span></li><li><span><a href="#Linear-Regression-on-Housing-Data" data-toc-modified-id="Linear-Regression-on-Housing-Data-2"><span class="toc-item-num">2&nbsp;&nbsp;</span>Linear Regression on Housing Data</a></span><ul class="toc-item"><li><span><a href="#This-repository-contains" data-toc-modified-id="This-repository-contains-2.1"><span class="toc-item-num">2.1&nbsp;&nbsp;</span>This repository contains</a></span></li><li><span><a href="#Questions" data-toc-modified-id="Questions-2.2"><span class="toc-item-num">2.2&nbsp;&nbsp;</span>Questions</a></span></li><li><span><a href="#Column-Names-and-Descriptions" data-toc-modified-id="Column-Names-and-Descriptions-2.3"><span class="toc-item-num">2.3&nbsp;&nbsp;</span>Column Names and Descriptions</a></span></li><li><span><a href="#Using-the-OSEMN-Process" data-toc-modified-id="Using-the-OSEMN-Process-2.4"><span class="toc-item-num">2.4&nbsp;&nbsp;</span>Using the OSEMN Process</a></span></li><li><span><a href="#Results" data-toc-modified-id="Results-2.5"><span class="toc-item-num">2.5&nbsp;&nbsp;</span>Results</a></span></li><li><span><a href="#Recommendations" data-toc-modified-id="Recommendations-2.6"><span class="toc-item-num">2.6&nbsp;&nbsp;</span>Recommendations</a></span></li><li><span><a href="#Next-Steps" data-toc-modified-id="Next-Steps-2.7"><span class="toc-item-num">2.7&nbsp;&nbsp;</span>Next Steps</a></span><ul class="toc-item"><li><span><a href="#Repository-Structure" data-toc-modified-id="Repository-Structure-2.7.1"><span class="toc-item-num">2.7.1&nbsp;&nbsp;</span>Repository Structure</a></span></li></ul></li></ul></li></ul></div>
 
 
 # Location, Location, Location!
@@ -10,7 +10,7 @@
 
 **Author**: <a href="https://sites.google.com/skelouse.com/home/">Sam Stoltenberg</a>
 
-## This repository contains:
+## This repository contains
  -  A Jupyter notebook <a href="https://github.com/skelouse/mod-2-project/blob/master/student.ipynb">`student.ipynb`</a> showing our analysis of the King's county housing dataset.
 - The dataset itself
 - An interactive <a href="https://github.com/skelouse/mod-2-project/blob/master/map.html">`map.html`</a> map of King's county
@@ -20,7 +20,7 @@
 
 
 
-## Questions:
+## Questions
 
  - What should you change about your home to increase its value?
 - How many rooms should you add, should it be a bedroom or bathroom?
@@ -59,7 +59,7 @@
 - <a href="https://machinelearningmastery.com/how-to-work-through-a-problem-like-a-data-scientist/">Reference</a>
 
 
-## Results:
+## Results
 
 ![output_120_0.png](/img/output_120_0.png)
 <div class="shadow alert alert-success">
@@ -81,7 +81,7 @@
 </div>
 
 
-## Recommendations:
+## Recommendations
 
  - Adding square feet, a bedroom, or bathroom could increase your home value.
 - Depending on water, sewage piping and location, you should add a bathroom for the
@@ -90,7 +90,7 @@ greater value increase.
 - Focus on the overall grade of your home, and of your neighbors to increase the value.
 
 
-## Next Steps:
+## Next Steps
 
  - Study more features, garage, roof style, etc.
 - Compare our model of King’s county to other counties.
@@ -100,7 +100,7 @@ greater value increase.
 For any additional questions, please contact <a href="mailto:sam@skelouse.com">Sam Stoltenberg</a>)
 
 
-### Repository Structure:
+### Repository Structure
 
 ```
 |   blog.ipynb
