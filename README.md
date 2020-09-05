@@ -45,7 +45,7 @@
 - An interactive <a href="https://github.com/skelouse/mod-2-project/blob/master/map.html">`map.html`</a> map of King's county
 - A module <a href="https://github.com/skelouse/mod-2-project/tree/master/mltools">`mltools`</a> that we built for this project for use in Linear Regression.
 - A PowerPoint <a href="https://github.com/skelouse/mod-2-project/blob/master/presentation.pdf">presentation</a> of the data
-- Two more Jupyter notebooks that we made in originally learning and attempting to conquer the data <a href="https://github.com/skelouse/mod-2-project/blob/master/student_old_1.ipynb">`student_old_1.ipynb`</a> and <a href="https://github.com/skelouse/mod-2-project/blob/master/student_old_2.ipynb">`student_old_2.ipynb`</a>
+- Two more Jupyter notebooks that we made while originally learning and attempting to conquer the data <a href="https://github.com/skelouse/mod-2-project/blob/master/student_old_1.ipynb">`student_old_1.ipynb`</a> and <a href="https://github.com/skelouse/mod-2-project/blob/master/student_old_2.ipynb">`student_old_2.ipynb`</a>
 
 
 
