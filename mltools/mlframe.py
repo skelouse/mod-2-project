@@ -161,7 +161,7 @@ class MLFrame(pd.DataFrame):
         origin           1.772
         """
         X = self.drop(target, axis=1)
-        X= sm.add_constant(X)
+        X = sm.add_constant(X)
         vif = [variance_inflation_factor(X.values, i)
             for i in range(X.shape[1])]
         s = pd.Series(dict(zip(X.columns, vif)))
