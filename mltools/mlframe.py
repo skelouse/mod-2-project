@@ -953,7 +953,7 @@ class MLFrame(pd.DataFrame):
         >>> df.clean_col_names(inplace=True)
         >>> df.model_and_plot('mpg')
         """
-        self.lrmodel(target=target, inplace=True, verbose=True)
+        self.lrmodel(target=target, inplace=True, verbose=True, **kwargs)
         model = self.model
         fig, axes = plt.subplots(nrows=2, figsize=figsize)
         fig.tight_layout(pad=8.0)
